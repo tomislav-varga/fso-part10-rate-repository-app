@@ -1,6 +1,6 @@
-import { View, TextInput, StyleSheet, Pressable } from 'react-native';
+import { View, TextInput, Text, StyleSheet, Pressable } from 'react-native';
 import { Formik } from 'formik';
-import Text from '../Text';
+import * as yup from 'yup';
 
 const styles = StyleSheet.create({
   container: {
@@ -15,8 +15,17 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 5,
     padding: 15,
-    marginBottom: 15,
+    marginBottom: 5,
     fontSize: 16,
+  },
+  inputError: {
+    borderColor: '#d73a4a',
+  },
+  errorText: {
+    color: '#d73a4a',
+    fontSize: 12,
+    marginBottom: 15,
+    marginLeft: 5,
   },
   button: {
     backgroundColor: '#0366d6',
@@ -36,6 +45,15 @@ const initialValues = {
   password: '',
 };
 
+const validationSchema = yup.object().shape({
+  username: yup
+    .string()
+    .required('Username is required'),
+  password: yup
+    .string()
+    .required('Password is required'),
+});
+
 const SignIn = () => {
   const onSubmit = (values) => {
     console.log(values);
@@ -43,24 +61,42 @@ const SignIn = () => {
 
   return (
     <View style={styles.container}>
-      <Formik initialValues={initialValues} onSubmit={onSubmit}>
-        {({ handleChange, handleBlur, handleSubmit, values }) => (
+      <Formik 
+        initialValues={initialValues} 
+        validationSchema={validationSchema}
+        onSubmit={onSubmit}
+      >
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
           <View style={styles.form}>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                touched.username && errors.username && styles.inputError
+              ]}
               placeholder="Username"
               value={values.username}
               onChangeText={handleChange('username')}
               onBlur={handleBlur('username')}
             />
+            {touched.username && errors.username && (
+              <Text style={styles.errorText}>{errors.username}</Text>
+            )}
+            
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                touched.password && errors.password && styles.inputError
+              ]}
               placeholder="Password"
               value={values.password}
               onChangeText={handleChange('password')}
               onBlur={handleBlur('password')}
               secureTextEntry={true}
             />
+            {touched.password && errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
+            
             <Pressable style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonText}>Sign in</Text>
             </Pressable>
